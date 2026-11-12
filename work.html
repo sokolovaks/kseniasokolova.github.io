@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Work | Ksenia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
+  <header>
+    <span class="logo">Ksenia</span>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="work.html" class="current">My Work</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Where marketing meets data</h2>
+
+    <p>
+      The thread through everything I've done is that I like brands, and I like proof.
+      My marketing classes gave me the language for positioning, storytelling, and
+      audiences. My analytics and data science classes gave me the tools to test whether
+      those ideas hold up. I try to use both whenever I can, because a good idea with no
+      numbers behind it is just an opinion, and a pile of numbers with no story is hard
+      for anyone to care about.
+    </p>
+
+    <img src="images/paris.svg" alt="Paris scene from my study abroad program (replace with your own photo)">
+    <p class="caption">Paris, during the Fashion Dialogue of Civilizations program.</p>
+
+    <p>
+      My co-ops are where this got real. In Firmwide Brand Marketing at Brown Brothers
+      Harriman, I got to see how a large financial firm thinks about its brand across
+      many teams. As a Search Engine Marketing Junior Analyst at Lunar Solar Group, I
+      worked with search campaign data and learned how small changes can shift results.
+      My leadership roles at NUCALLS and the Fashion Society pushed me in a different
+      direction: budgeting, planning events, and getting people to show up.
+    </p>
+
+    <h2>What I've been part of</h2>
+    <ul>
+      <li>Firmwide Brand Marketing co-op, Brown Brothers Harriman &amp; Co.</li>
+      <li>Search Engine Marketing Junior Analyst co-op, Lunar Solar Group</li>
+      <li>President (formerly Treasurer), Culture &amp; Language Learning Society (NUCALLS)</li>
+      <li>Event Coordinator, Northeastern Fashion Society</li>
+      <li>Fashion Dialogue of Civilizations study abroad, Paris</li>
+    </ul>
+
+    <h2>How it all connects</h2>
+    <p>
+      Here's a map of my interests and experiences. Drag the circles around, and hover
+      over one to see what it is.
+    </p>
+    <svg id="graph" viewBox="0 0 700 460" role="img"
+         aria-label="Network graph connecting Ksenia to her concentrations, co-ops, clubs, and study abroad"></svg>
+  </main>
+
+  <footer>
+    <p>Want to chat?</p>
+    <a href="mailto:YOUR_EMAIL@northeastern.edu">Email</a>
+    <a href="https://www.linkedin.com/in/YOUR-LINKEDIN/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://github.com/YOUR-GITHUB-USERNAME" target="_blank" rel="noopener">GitHub</a>
+  </footer>
+
+  <script>
+    // ----- D3 visualization: interactive network of interests -----
+    const nodes = [
+      { id: "Ksenia", group: "me" },
+      { id: "Marketing", group: "study" },
+      { id: "Marketing Analytics", group: "study" },
+      { id: "Data Science", group: "study" },
+      { id: "BBH Brand Marketing", group: "work" },
+      { id: "LSG Search Marketing", group: "work" },
+      { id: "NUCALLS", group: "leadership" },
+      { id: "Fashion Society", group: "leadership" },
+      { id: "Paris", group: "leadership" }
+    ];
+
+    const links = [
+      { source: "Ksenia", target: "Marketing" },
+      { source: "Ksenia", target: "Marketing Analytics" },
+      { source: "Ksenia", target: "Data Science" },
+      { source: "Ksenia", target: "NUCALLS" },
+      { source: "Ksenia", target: "Fashion Society" },
+      { source: "Marketing", target: "BBH Brand Marketing" },
+      { source: "Marketing Analytics", target: "LSG Search Marketing" },
+      { source: "Data Science", target: "LSG Search Marketing" },
+      { source: "Fashion Society", target: "Paris" }
+    ];
+
+    const colors = { me: "#b4234f", study: "#16213a", work: "#3f6c8f", leadership: "#8a8fa0" };
+
+    const svg = d3.select("#graph");
+    const width = 700, height = 460;
+
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(110))
+      .force("charge", d3.forceManyBody().strength(-350))
+      .force("center", d3.forceCenter(width / 2, height / 2));
+
+    const link = svg.append("g").attr("stroke", "#c5c9d3")
+      .selectAll("line").data(links).join("line").attr("stroke-width", 2);
+
+    const node = svg.append("g").selectAll("g").data(nodes).join("g")
+      .call(d3.drag()
+        .on("start", (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+        .on("drag", (e, d) => { d.fx = e.x; d.fy = e.y; })
+        .on("end", (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }));
+
+    node.append("circle")
+      .attr("r", d => d.group === "me" ? 26 : 14)
+      .attr("fill", d => colors[d.group]);
+
+    node.append("text")
+      .text(d => d.id)
+      .attr("y", d => (d.group === "me" ? 26 : 14) + 16)
+      .attr("text-anchor", "middle")
+      .attr("font-size", 13)
+      .attr("font-family", "DM Sans, Arial, sans-serif")
+      .attr("fill", "#16213a");
+
+    node.append("title").text(d => d.id);
+
+    simulation.on("tick", () => {
+      nodes.forEach(d => {
+        d.x = Math.max(40, Math.min(width - 40, d.x));
+        d.y = Math.max(30, Math.min(height - 40, d.y));
+      });
+      link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+          .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+      node.attr("transform", d => `translate(${d.x},${d.y})`);
+    });
+  </script>
+</body>
+</html>
